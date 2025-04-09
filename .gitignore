@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build e binários
+bin/
+obj/
+*.dll
+*.exe
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Mac/Linux
+.DS_Store
+Thumbs.db
