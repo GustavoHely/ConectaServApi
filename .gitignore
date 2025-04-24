@@ -10,12 +10,18 @@ bin/
 obj/
 *.dll
 *.exe
+
+# Banco de dados e arquivos locais
 *.db
 *.sqlite
 
 # Logs
 *.log
 
+# Configurações sensíveis
+appsettings.json
+appsettings.Development.json
+
 # Mac/Linux
 .DS_Store
-Thumbs.db
+Thumbs

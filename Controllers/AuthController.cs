@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ConectaServApi.Models;
 using ConectaServApi.Data;
+using ConectaServApi.Services;
 
 namespace ConectaServApi.Controllers
 {
@@ -41,6 +42,25 @@ namespace ConectaServApi.Controllers
 
             return Ok(new { mensagem = "Usuário registrado com sucesso." });
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UsuarioLoginDTO dto, [FromServices] IConfiguration config)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            if (usuario == null || !usuario.VerificarSenha(dto.Senha))
+            {
+                return Unauthorized(new { mensagem = "E-mail ou senha inválidos." });
+            }
+
+            var token = TokenService.GenerateToken(usuario, config);
+
+            return Ok(new
+            {
+                token,
+                usuario = new { usuario.Id, usuario.Nome, usuario.Email }
+            });
+        }
+
     }
 }
 
