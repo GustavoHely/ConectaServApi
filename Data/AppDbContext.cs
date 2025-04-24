@@ -10,6 +10,7 @@ namespace ConectaServApi.Data
         public DbSet<Usuario> Usuarios { get; set; }
 
         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Prestador> Prestadores { get; set; }
 
     }
 }
