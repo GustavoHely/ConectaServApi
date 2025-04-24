@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PlataformaPrestadores.Api.Models;
+using ConectaServApi.Models;
 
-namespace PlataformaPrestadores.Api.Data
+namespace ConectaServApi.Data
 {
     public class AppDbContext : DbContext
     {

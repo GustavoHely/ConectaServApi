@@ -18,8 +18,11 @@ namespace ConectaServApi.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Nome = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
-                    Senha = table.Column<string>(type: "TEXT", nullable: false),
-                    FotoPerfilUrl = table.Column<string>(type: "TEXT", nullable: true)
+                    SenhaHash = table.Column<string>(type: "TEXT", nullable: false),
+                    Telefone = table.Column<string>(type: "TEXT", nullable: false),
+                    Celular = table.Column<string>(type: "TEXT", nullable: false),
+                    FotoPerfilUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    EnderecoId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

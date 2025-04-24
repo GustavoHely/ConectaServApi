@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using PlataformaPrestadores.Api.Data;
+using ConectaServApi.Data;
 
-namespace PlataformaPrestadores.Api
+namespace ConectaServApi
 {
     public class Startup
     {
