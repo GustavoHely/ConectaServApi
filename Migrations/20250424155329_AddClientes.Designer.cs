@@ -2,6 +2,7 @@
 using ConectaServApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConectaServApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424155329_AddClientes")]
+    partial class AddClientes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -42,43 +45,6 @@ namespace ConectaServApi.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Clientes");
-                });
-
-            modelBuilder.Entity("ConectaServApi.Models.Prestador", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Celular")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Cnpj")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NomeFantasia")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("RazaoSocial")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Site")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Telefone")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("Prestadores");
                 });
 
             modelBuilder.Entity("ConectaServApi.Models.Usuario", b =>
@@ -120,17 +86,6 @@ namespace ConectaServApi.Migrations
                 });
 
             modelBuilder.Entity("ConectaServApi.Models.Cliente", b =>
-                {
-                    b.HasOne("ConectaServApi.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("ConectaServApi.Models.Prestador", b =>
                 {
                     b.HasOne("ConectaServApi.Models.Usuario", "Usuario")
                         .WithMany()
