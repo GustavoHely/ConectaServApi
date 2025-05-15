@@ -8,6 +8,7 @@ using ConectaServApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 
 namespace ConectaServApi
@@ -82,7 +83,9 @@ namespace ConectaServApi
 
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"),
+                ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection"))));
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
