@@ -5,6 +5,8 @@ namespace ConectaServApi.Models
 {
     public class Prestador
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
@@ -24,6 +26,7 @@ namespace ConectaServApi.Models
         [ForeignKey("Usuario")]
         public int UsuarioId { get; set; }
 
+        [ForeignKey("UsuarioId")]
         public Usuario Usuario { get; set; }
     }
 }
