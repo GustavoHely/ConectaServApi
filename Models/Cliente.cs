@@ -10,15 +10,21 @@ namespace ConectaServApi.Models
         public int Id { get; set; }
 
         [Required]
-        public string CPF { get; set; }
+        public string Telefone { get; set; } = string.Empty;
 
-        public string Telefone { get; set; }
-        public string Celular { get; set; }
+        [Required]
+        public string Celular { get; set; } = string.Empty;
 
+        [Required]
+        public int EnderecoId { get; set; }
+
+        public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
+
+        [Required]
         [ForeignKey("Usuario")]
         public int UsuarioId { get; set; }
 
-        [ForeignKey("UsuarioId")]
         public Usuario Usuario { get; set; }
     }
 }
+

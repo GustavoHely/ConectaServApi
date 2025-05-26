@@ -1,10 +1,9 @@
-﻿using ConectaServApi.DTOs;
-using ConectaServApi.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ConectaServApi.Data;
+using ConectaServApi.Models;
+using ConectaServApi.DTOs;
 
 namespace ConectaServApi.Controllers
 {
@@ -20,27 +19,24 @@ namespace ConectaServApi.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> CadastrarCliente([FromBody] ClienteCadastroDTO dto)
+        [HttpPost("cadastrar")]
+        public IActionResult CadastrarCliente([FromBody] ClienteCadastroDTO dto)
         {
-            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-            // Verificar se o usuário já é cliente
-            if (await _context.Clientes.AnyAsync(c => c.UsuarioId == usuarioId))
-                return BadRequest("Cliente já cadastrado.");
+            var usuarioId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value ?? "0");
 
             var cliente = new Cliente
             {
-                CPF = dto.CPF,
+                UsuarioId = usuarioId,
                 Telefone = dto.Telefone,
                 Celular = dto.Celular,
-                UsuarioId = usuarioId
+                EnderecoId = dto.EnderecoId,
+                FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl
             };
 
             _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return Ok(new { mensagem = "Cliente cadastrado com sucesso!" });
+            return Ok(new { mensagem = "Cliente cadastrado com sucesso.", cliente.Id });
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using ConectaServApi.DTOs;
-using ConectaServApi.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ConectaServApi.Data;
+using ConectaServApi.Models;
+using ConectaServApi.DTOs;
 
 namespace ConectaServApi.Controllers
 {
@@ -20,30 +19,27 @@ namespace ConectaServApi.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> CadastrarPrestador([FromBody] PrestadorCadastroDTO dto)
+        [HttpPost("cadastrar")]
+        public IActionResult CadastrarPrestador([FromBody] PrestadorCadastroDTO dto)
         {
-            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-            // Verifica se esse usuário já é um prestador
-            if (await _context.Prestadores.AnyAsync(p => p.UsuarioId == usuarioId))
-                return BadRequest("Usuário já está cadastrado como prestador.");
+            var usuarioId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value ?? "0");
 
             var prestador = new Prestador
             {
+                UsuarioId = usuarioId,
                 Cnpj = dto.Cnpj,
-                NomeFantasia = dto.NomeFantasia,
                 RazaoSocial = dto.RazaoSocial,
                 Telefone = dto.Telefone,
                 Celular = dto.Celular,
-                Site = dto.Site,
-                UsuarioId = usuarioId
+                EnderecoId = dto.EnderecoId,
+                FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl,
+                Destaque = false
             };
 
             _context.Prestadores.Add(prestador);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return Ok(new { mensagem = "Prestador cadastrado com sucesso!" });
+            return Ok(new { mensagem = "Prestador cadastrado com sucesso.", prestador.Id });
         }
     }
 }

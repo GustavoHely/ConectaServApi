@@ -11,6 +11,9 @@ namespace ConectaServApi.Data
 
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Prestador> Prestadores { get; set; }
+        public DbSet<ContatoEmpresa> ContatosEmpresa { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Endereco> Enderecos { get; set; }
 
     }
 }

@@ -1,12 +1,37 @@
-﻿namespace ConectaServApi.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+public class PrestadorCadastroDTO
 {
-    public class PrestadorCadastroDTO
-    {
-        public string Cnpj { get; set; }
-        public string NomeFantasia { get; set; }
-        public string? RazaoSocial { get; set; }
-        public string? Telefone { get; set; }
-        public string Celular { get; set; }
-        public string? Site { get; set; }
-    }
+    [Required]
+    public string Nome { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string Senha { get; set; } = string.Empty;
+
+    [Required]
+    public string NumTelefone { get; set; } = string.Empty;
+
+    public string FotoPerfil { get; set; } = string.Empty;
+    public string? Cpf { get; set; } = string.Empty;
+
+    [Required]
+    public string Cnpj { get; set; } = string.Empty;
+
+    [Required]
+    public string RazaoSocial { get; set; } = string.Empty;
+
+    [Required]
+    public string Telefone { get; set; } = string.Empty;
+
+    [Required]
+    public string Celular { get; set; } = string.Empty;
+
+    [Required]
+    public int EnderecoId { get; set; }
+
+    public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
 }

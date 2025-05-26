@@ -1,8 +1,14 @@
-﻿namespace ConectaServApi.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ConectaServApi.DTOs
 {
     public class UsuarioLoginDTO
     {
-        public string Email { get; set; }
-        public string Senha { get; set; }
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string Senha { get; set; } = string.Empty;
     }
 }
