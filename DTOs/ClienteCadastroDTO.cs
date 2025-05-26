@@ -1,9 +1,15 @@
-﻿namespace ConectaServApi.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+public class ClienteCadastroDTO
 {
-    public class ClienteCadastroDTO
-    {
-        public string CPF { get; set; }
-        public string Telefone { get; set; }
-        public string Celular { get; set; }
-    }
+    [Required]
+    public string Telefone { get; set; } = string.Empty;
+
+    [Required]
+    public string Celular { get; set; } = string.Empty;
+
+    [Required]
+    public int EnderecoId { get; set; }
+
+    public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
 }

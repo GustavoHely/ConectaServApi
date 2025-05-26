@@ -1,0 +1,19 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ConectaServApi.DTOs
+{
+    public class EmpresaCadastroDTO
+    {
+        [Required]
+        public int PrestadorId { get; set; }
+
+        [Required]
+        public string Nome { get; set; } = string.Empty;
+
+        [Required]
+        public string RazaoSocial { get; set; } = string.Empty;
+
+        [Required]
+        public string Cnpj { get; set; } = string.Empty;
+    }
+}
