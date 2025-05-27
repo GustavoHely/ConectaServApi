@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Registra um pagamento de assinatura para um prestador.
+        /// Este endpoint exige os campos PrestadorId, CartaoId e PlanoAssinaturaId, todos previamente cadastrados.
         /// </summary>
         /// <param name="dto">Dados do pagamento</param>
         /// <returns>Pagamento registrado</returns>

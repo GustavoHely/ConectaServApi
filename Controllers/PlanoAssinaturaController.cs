@@ -19,6 +19,8 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Cadastra um novo plano de assinatura.
+        /// Todos os campos (Nome, Valor e DuracaoEmDias) são obrigatórios.
+        /// Este plano será utilizado por prestadores ao realizar pagamentos.
         /// </summary>
         /// <param name="dto">Dados do plano</param>
         /// <returns>Plano criado</returns>

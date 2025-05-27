@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Cadastra uma nova empresa vinculada a um prestador.
+        /// Este endpoint exige um campo obrigatório PrestadorId, que deve estar previamente cadastrado.
         /// </summary>
         /// <param name="dto">DTO com dados da empresa</param>
         /// <returns>Retorna os dados da empresa criada</returns>
