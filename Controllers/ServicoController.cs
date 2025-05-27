@@ -1,4 +1,4 @@
-﻿/*using ConectaServApi.Data;
+﻿using ConectaServApi.Data;
 using ConectaServApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,4 +40,3 @@ namespace ConectaServApi.Controllers
         }
     }
 }
-*/
