@@ -17,40 +17,138 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [HttpPost("cadastrar")]
-        public async Task<IActionResult> Cadastrar([FromBody] EmpresaCadastroDTO dto)
+        /// <summary>
+        /// Cadastra uma nova empresa vinculada a um prestador.
+        /// </summary>
+        /// <param name="dto">DTO com dados da empresa</param>
+        /// <returns>Retorna os dados da empresa criada</returns>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> Cadastrar(EmpresaCadastroDTO dto)
         {
-            var prestador = await _context.Prestadores.FindAsync(dto.PrestadorId);
-            if (prestador == null)
-                return NotFound("Prestador não encontrado.");
-
             var empresa = new Empresa
             {
-                PrestadorId = dto.PrestadorId,
                 Nome = dto.Nome,
                 RazaoSocial = dto.RazaoSocial,
                 Cnpj = dto.Cnpj,
                 FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl,
-                EnderecoId = dto.EnderecoId
+                PrestadorId = dto.PrestadorId
             };
 
             _context.Empresas.Add(empresa);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensagem = "Empresa cadastrada com sucesso.", empresa.Id });
+            dto.Id = empresa.Id;
+            return CreatedAtAction(nameof(ObterPorId), new { id = empresa.Id }, dto);
         }
 
-        [HttpGet("listar")]
-        public async Task<IActionResult> Listar()
+        /// <summary>
+        /// Lista todas as empresas cadastradas.
+        /// </summary>
+        /// <returns>Lista de empresas</returns>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<EmpresaCadastroDTO>>> Listar()
         {
-            var empresas = await _context.Empresas
-                .Include(e => e.Prestador)
-                    .ThenInclude(p => p.Usuario)
-                .Include(e => e.Endereco)
-                .Include(e => e.Contatos)
-                .ToListAsync();
+            return await _context.Empresas
+                .Select(e => new EmpresaCadastroDTO
+                {
+                    Id = e.Id,
+                    Nome = e.Nome,
+                    RazaoSocial = e.RazaoSocial,
+                    Cnpj = e.Cnpj,
+                    FotoEstabelecimentoUrl = e.FotoEstabelecimentoUrl,
+                    PrestadorId = e.PrestadorId
+                }).ToListAsync();
+        }
 
-            return Ok(empresas);
+        /// <summary>
+        /// Obtém os dados de uma empresa pelo ID.
+        /// </summary>
+        /// <param name="id">ID da empresa</param>
+        /// <returns>Dados da empresa encontrada</returns>
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<EmpresaCadastroDTO>> ObterPorId(int id)
+        {
+            var e = await _context.Empresas.FindAsync(id);
+            if (e == null) return NotFound();
+
+            return new EmpresaCadastroDTO
+            {
+                Id = e.Id,
+                Nome = e.Nome,
+                RazaoSocial = e.RazaoSocial,
+                Cnpj = e.Cnpj,
+                FotoEstabelecimentoUrl = e.FotoEstabelecimentoUrl,
+                PrestadorId = e.PrestadorId
+            };
+        }
+
+        /// <summary>
+        /// Atualiza os dados de uma empresa existente.
+        /// </summary>
+        /// <param name="id">ID da empresa</param>
+        /// <param name="dto">Dados atualizados</param>
+        /// <returns>NoContent se sucesso</returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Atualizar(int id, EmpresaCadastroDTO dto)
+        {
+            var empresa = await _context.Empresas.FindAsync(id);
+            if (empresa == null) return NotFound();
+
+            empresa.Nome = dto.Nome;
+            empresa.RazaoSocial = dto.RazaoSocial;
+            empresa.Cnpj = dto.Cnpj;
+            empresa.FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl;
+            empresa.PrestadorId = dto.PrestadorId;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Exclui uma empresa do sistema.
+        /// </summary>
+        /// <param name="id">ID da empresa</param>
+        /// <returns>NoContent se excluída</returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Excluir(int id)
+        {
+            var empresa = await _context.Empresas.FindAsync(id);
+            if (empresa == null) return NotFound();
+
+            _context.Empresas.Remove(empresa);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Lista todas as empresas de um prestador específico.
+        /// </summary>
+        /// <param name="prestadorId">ID do prestador</param>
+        /// <returns>Lista de empresas</returns>
+        [HttpGet("prestador/{prestadorId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<EmpresaCadastroDTO>>> ListarPorPrestador(int prestadorId)
+        {
+            return await _context.Empresas
+                .Where(e => e.PrestadorId == prestadorId)
+                .Select(e => new EmpresaCadastroDTO
+                {
+                    Id = e.Id,
+                    Nome = e.Nome,
+                    RazaoSocial = e.RazaoSocial,
+                    Cnpj = e.Cnpj,
+                    FotoEstabelecimentoUrl = e.FotoEstabelecimentoUrl,
+                    PrestadorId = e.PrestadorId
+                }).ToListAsync();
         }
     }
 }
