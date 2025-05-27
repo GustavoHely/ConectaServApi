@@ -10,7 +10,12 @@ namespace ConectaServApi.Services
     {
         public static string GenerateToken(Usuario usuario, IConfiguration config)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            // Corrigindo o CS8604
+            var jwtKey = config["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey))
+                throw new InvalidOperationException("Chave JWT não configurada. Verifique o appsettings.json.");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]

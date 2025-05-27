@@ -4,6 +4,8 @@ namespace ConectaServApi.DTOs
 {
     public class EmpresaCadastroDTO
     {
+        public int? Id { get; set; }
+
         [Required]
         public int PrestadorId { get; set; }
 
