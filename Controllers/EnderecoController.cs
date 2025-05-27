@@ -2,6 +2,7 @@
 using ConectaServApi.DTOs;
 using ConectaServApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConectaServApi.Controllers
 {
@@ -16,12 +17,9 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public IActionResult CadastrarEndereco([FromBody] EnderecoCadastroDTO dto)
+        [HttpPost("cadastrar")]
+        public async Task<IActionResult> Cadastrar([FromBody] EnderecoCadastroDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var endereco = new Endereco
             {
                 Estado = dto.Estado,
@@ -35,55 +33,16 @@ namespace ConectaServApi.Controllers
             };
 
             _context.Enderecos.Add(endereco);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(ObterPorId), new { id = endereco.Id }, endereco);
+            return Ok(new { mensagem = "Endereço cadastrado com sucesso.", endereco.Id });
         }
 
-        [HttpGet("{id}")]
-        public IActionResult ObterPorId(int id)
+        [HttpGet("listar")]
+        public async Task<IActionResult> Listar()
         {
-            var endereco = _context.Enderecos.Find(id);
-            if (endereco == null) return NotFound();
-            return Ok(endereco);
-        }
-
-        [HttpGet]
-        public IActionResult ListarTodos()
-        {
-            return Ok(_context.Enderecos.ToList());
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Atualizar(int id, [FromBody] EnderecoCadastroDTO dto)
-        {
-            var endereco = _context.Enderecos.Find(id);
-            if (endereco == null) return NotFound();
-
-            endereco.Estado = dto.Estado;
-            endereco.Cidade = dto.Cidade;
-            endereco.Bairro = dto.Bairro;
-            endereco.Rua = dto.Rua;
-            endereco.Numero = dto.Numero;
-            endereco.CEP = dto.CEP;
-            endereco.Latitude = dto.Latitude;
-            endereco.Longitude = dto.Longitude;
-
-            _context.SaveChanges();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Excluir(int id)
-        {
-            var endereco = _context.Enderecos.Find(id);
-            if (endereco == null) return NotFound();
-
-            _context.Enderecos.Remove(endereco);
-            _context.SaveChanges();
-
-            return NoContent();
+            var enderecos = await _context.Enderecos.ToListAsync();
+            return Ok(enderecos);
         }
     }
 }

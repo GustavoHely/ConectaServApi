@@ -17,66 +17,40 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public IActionResult Cadastrar([FromBody] EmpresaCadastroDTO dto)
+        [HttpPost("cadastrar")]
+        public async Task<IActionResult> Cadastrar([FromBody] EmpresaCadastroDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var prestador = await _context.Prestadores.FindAsync(dto.PrestadorId);
+            if (prestador == null)
+                return NotFound("Prestador não encontrado.");
 
             var empresa = new Empresa
             {
                 PrestadorId = dto.PrestadorId,
                 Nome = dto.Nome,
                 RazaoSocial = dto.RazaoSocial,
-                Cnpj = dto.Cnpj
+                Cnpj = dto.Cnpj,
+                FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl,
+                EnderecoId = dto.EnderecoId
             };
 
             _context.Empresas.Add(empresa);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(ObterPorId), new { id = empresa.Id }, empresa);
+            return Ok(new { mensagem = "Empresa cadastrada com sucesso.", empresa.Id });
         }
 
-        [HttpGet("{id}")]
-        public IActionResult ObterPorId(int id)
+        [HttpGet("listar")]
+        public async Task<IActionResult> Listar()
         {
-            var empresa = _context.Empresas
+            var empresas = await _context.Empresas
+                .Include(e => e.Prestador)
+                    .ThenInclude(p => p.Usuario)
+                .Include(e => e.Endereco)
                 .Include(e => e.Contatos)
-                .FirstOrDefault(e => e.Id == id);
+                .ToListAsync();
 
-            if (empresa == null) return NotFound();
-            return Ok(empresa);
-        }
-
-        [HttpGet]
-        public IActionResult Listar()
-        {
-            var empresas = _context.Empresas.Include(e => e.Contatos).ToList();
             return Ok(empresas);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Atualizar(int id, [FromBody] EmpresaCadastroDTO dto)
-        {
-            var empresa = _context.Empresas.Find(id);
-            if (empresa == null) return NotFound();
-
-            empresa.Nome = dto.Nome;
-            empresa.RazaoSocial = dto.RazaoSocial;
-            empresa.Cnpj = dto.Cnpj;
-
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Deletar(int id)
-        {
-            var empresa = _context.Empresas.Find(id);
-            if (empresa == null) return NotFound();
-
-            _context.Empresas.Remove(empresa);
-            _context.SaveChanges();
-            return NoContent();
         }
     }
 }

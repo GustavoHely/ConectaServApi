@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using ConectaServApi.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using ConectaServApi.Models;
 using ConectaServApi.DTOs;
+using ConectaServApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConectaServApi.Controllers
 {
     [ApiController]
-    [Route("cliente")]
+    [Route("api/[controller]")]
     public class ClienteController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,25 +17,34 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [Authorize]
         [HttpPost("cadastrar")]
-        public IActionResult CadastrarCliente([FromBody] ClienteCadastroDTO dto)
+        public async Task<IActionResult> Cadastrar([FromBody] ClienteCadastroDTO dto)
         {
-            var usuarioId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value ?? "0");
+            var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
+            if (usuario == null)
+                return NotFound("Usuário não encontrado.");
 
             var cliente = new Cliente
             {
-                UsuarioId = usuarioId,
-                Telefone = dto.Telefone,
-                Celular = dto.Celular,
-                EnderecoId = dto.EnderecoId,
-                FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl
+                UsuarioId = dto.UsuarioId,
+                EnderecoId = dto.EnderecoId
             };
 
             _context.Clientes.Add(cliente);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Cliente cadastrado com sucesso.", cliente.Id });
+        }
+
+        [HttpGet("listar")]
+        public async Task<IActionResult> Listar()
+        {
+            var clientes = await _context.Clientes
+                .Include(c => c.Usuario)
+                .Include(c => c.Endereco)
+                .ToListAsync();
+
+            return Ok(clientes);
         }
     }
 }

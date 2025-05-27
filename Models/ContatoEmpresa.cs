@@ -13,14 +13,15 @@ namespace ConectaServApi.Models
         public int EmpresaId { get; set; }
 
         [ForeignKey("EmpresaId")]
-        public Empresa Empresa { get; set; }
+        public Empresa Empresa { get; set; } = new Empresa();
 
         [Required]
-        public string TipoContato { get; set; } = string.Empty; // Ex: WhatsApp, E-mail, Telefone fixo
+        public string TipoContato { get; set; } = string.Empty;
 
         [Required]
         public string Valor { get; set; } = string.Empty;
 
-        public string Descricao { get; set; } = string.Empty; // Ex: "Contato de urgência", "Setor financeiro"
+        [Required]
+        public string Descricao { get; set; } = string.Empty;
     }
 }

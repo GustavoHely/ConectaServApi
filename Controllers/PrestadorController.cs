@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using ConectaServApi.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using ConectaServApi.Models;
 using ConectaServApi.DTOs;
+using ConectaServApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConectaServApi.Controllers
 {
     [ApiController]
-    [Route("prestador")]
+    [Route("api/[controller]")]
     public class PrestadorController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,28 +17,32 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [Authorize]
         [HttpPost("cadastrar")]
-        public IActionResult CadastrarPrestador([FromBody] PrestadorCadastroDTO dto)
+        public async Task<IActionResult> Cadastrar([FromBody] PrestadorCadastroDTO dto)
         {
-            var usuarioId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value ?? "0");
+            var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
+            if (usuario == null)
+                return NotFound("Usuário não encontrado.");
 
             var prestador = new Prestador
             {
-                UsuarioId = usuarioId,
-                Cnpj = dto.Cnpj,
-                RazaoSocial = dto.RazaoSocial,
-                Telefone = dto.Telefone,
-                Celular = dto.Celular,
-                EnderecoId = dto.EnderecoId,
-                FotoEstabelecimentoUrl = dto.FotoEstabelecimentoUrl,
-                Destaque = false
+                UsuarioId = dto.UsuarioId
             };
 
             _context.Prestadores.Add(prestador);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Prestador cadastrado com sucesso.", prestador.Id });
+        }
+
+        [HttpGet("listar")]
+        public async Task<IActionResult> Listar()
+        {
+            var prestadores = await _context.Prestadores
+                .Include(p => p.Usuario)
+                .ToListAsync();
+
+            return Ok(prestadores);
         }
     }
 }

@@ -1,30 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ConectaServApi.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
-namespace ConectaServApi.Models
+public class Cliente
 {
-    public class Cliente
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-        [Required]
-        public string Telefone { get; set; } = string.Empty;
+    [Required]
+    public int EnderecoId { get; set; }
 
-        [Required]
-        public string Celular { get; set; } = string.Empty;
+    [ForeignKey("EnderecoId")]
+    public Endereco Endereco { get; set; } = new Endereco();
 
-        [Required]
-        public int EnderecoId { get; set; }
+    [Required]
+    [ForeignKey("UsuarioId")]
+    public int UsuarioId { get; set; }
 
-        public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
-
-        [Required]
-        [ForeignKey("Usuario")]
-        public int UsuarioId { get; set; }
-
-        public Usuario Usuario { get; set; }
-    }
+    public Usuario Usuario { get; set; } = new Usuario();
 }
-

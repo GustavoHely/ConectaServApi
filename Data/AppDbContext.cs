@@ -7,6 +7,8 @@ namespace ConectaServApi.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<TesteTemporario> Testes { get; set; }
+
         public DbSet<Usuario> Usuarios { get; set; }
 
         public DbSet<Cliente> Clientes { get; set; }

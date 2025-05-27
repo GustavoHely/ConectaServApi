@@ -15,5 +15,9 @@ namespace ConectaServApi.DTOs
 
         [Required]
         public string Cnpj { get; set; } = string.Empty;
+
+        public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
+
+        public int? EnderecoId { get; set; }
     }
 }
