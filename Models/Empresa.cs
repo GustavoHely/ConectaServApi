@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ConectaServApi.Models;
 
 namespace ConectaServApi.Models
 {
@@ -14,7 +13,7 @@ namespace ConectaServApi.Models
         public int PrestadorId { get; set; }
 
         [ForeignKey("PrestadorId")]
-        public Prestador Prestador { get; set; }
+        public Prestador Prestador { get; set; } = new Prestador();
 
         [Required]
         public string Nome { get; set; } = string.Empty;
@@ -24,6 +23,13 @@ namespace ConectaServApi.Models
 
         [Required]
         public string Cnpj { get; set; } = string.Empty;
+
+        public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
+
+        public int? EnderecoId { get; set; }
+
+        [ForeignKey("EnderecoId")]
+        public Endereco? Endereco { get; set; }
 
         public List<ContatoEmpresa> Contatos { get; set; } = new();
     }

@@ -11,36 +11,33 @@ namespace ConectaServApi.Models
         public int Id { get; set; }
 
         [Required]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         [Required]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string SenhaHash { get; set; }
+        public string SenhaHash { get; set; } = string.Empty;
 
         [Required]
-        public string Telefone { get; set; }
+        public string CPF { get; set; } = string.Empty;
 
         [Required]
-        public string Celular { get; set; }
+        public string Telefone { get; set; } = string.Empty;
 
         [Required]
-        public string FotoPerfilUrl { get; set; }
+        public string Celular { get; set; } = string.Empty;
+
+        [Required]
+        public string FotoPerfilUrl { get; set; } = string.Empty;
 
         public int EnderecoId { get; set; }
 
-        // Relacionamentos (se aplicável)
-        public ICollection<Cliente>? Clientes { get; set; }
-        public ICollection<Prestador>? Prestadores { get; set; }
-
-        // Método para definir senha (hash)
         public void DefinirSenha(string senha)
         {
             SenhaHash = BCrypt.Net.BCrypt.HashPassword(senha);
         }
 
-        // Método para verificar senha
         public bool VerificarSenha(string senha)
         {
             return BCrypt.Net.BCrypt.Verify(senha, SenhaHash);

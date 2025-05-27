@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConectaServApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250526182302_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250527001557_InicialMySql")]
+    partial class InicialMySql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace ConectaServApi.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("ConectaServApi.Models.Cliente", b =>
+            modelBuilder.Entity("Cliente", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,25 +33,15 @@ namespace ConectaServApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Celular")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<int>("EnderecoId")
                         .HasColumnType("int");
-
-                    b.Property<string>("FotoEstabelecimentoUrl")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Telefone")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EnderecoId");
 
                     b.HasIndex("UsuarioId");
 
@@ -100,6 +90,13 @@ namespace ConectaServApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("EnderecoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FotoEstabelecimentoUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -112,6 +109,8 @@ namespace ConectaServApi.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EnderecoId");
 
                     b.HasIndex("PrestadorId");
 
@@ -168,32 +167,6 @@ namespace ConectaServApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Celular")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Cnpj")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("Destaque")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("EnderecoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FotoEstabelecimentoUrl")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RazaoSocial")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Telefone")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
@@ -204,6 +177,23 @@ namespace ConectaServApi.Migrations
                     b.ToTable("Prestadores");
                 });
 
+            modelBuilder.Entity("ConectaServApi.Models.TesteTemporario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Testes");
+                });
+
             modelBuilder.Entity("ConectaServApi.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -211,6 +201,10 @@ namespace ConectaServApi.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CPF")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Celular")
                         .IsRequired()
@@ -244,13 +238,21 @@ namespace ConectaServApi.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("ConectaServApi.Models.Cliente", b =>
+            modelBuilder.Entity("Cliente", b =>
                 {
+                    b.HasOne("ConectaServApi.Models.Endereco", "Endereco")
+                        .WithMany()
+                        .HasForeignKey("EnderecoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ConectaServApi.Models.Usuario", "Usuario")
-                        .WithMany("Clientes")
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Endereco");
 
                     b.Navigation("Usuario");
                 });
@@ -268,11 +270,17 @@ namespace ConectaServApi.Migrations
 
             modelBuilder.Entity("ConectaServApi.Models.Empresa", b =>
                 {
+                    b.HasOne("ConectaServApi.Models.Endereco", "Endereco")
+                        .WithMany()
+                        .HasForeignKey("EnderecoId");
+
                     b.HasOne("ConectaServApi.Models.Prestador", "Prestador")
                         .WithMany()
                         .HasForeignKey("PrestadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Endereco");
 
                     b.Navigation("Prestador");
                 });
@@ -280,7 +288,7 @@ namespace ConectaServApi.Migrations
             modelBuilder.Entity("ConectaServApi.Models.Prestador", b =>
                 {
                     b.HasOne("ConectaServApi.Models.Usuario", "Usuario")
-                        .WithMany("Prestadores")
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -291,13 +299,6 @@ namespace ConectaServApi.Migrations
             modelBuilder.Entity("ConectaServApi.Models.Empresa", b =>
                 {
                     b.Navigation("Contatos");
-                });
-
-            modelBuilder.Entity("ConectaServApi.Models.Usuario", b =>
-                {
-                    b.Navigation("Clientes");
-
-                    b.Navigation("Prestadores");
                 });
 #pragma warning restore 612, 618
         }

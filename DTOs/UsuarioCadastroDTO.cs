@@ -15,8 +15,16 @@ namespace ConectaServApi.DTOs
         public string Senha { get; set; } = string.Empty;
 
         [Required]
-        public string NumTelefone { get; set; } = string.Empty;
+        public string CPF { get; set; } = string.Empty;
 
-        public string FotoPerfil { get; set; } = string.Empty;
+        [Required]
+        public string Telefone { get; set; } = string.Empty;
+
+        [Required]
+        public string Celular { get; set; } = string.Empty;
+
+        public string FotoPerfilUrl { get; set; } = string.Empty;
+
+        public int? EnderecoId { get; set; }
     }
 }

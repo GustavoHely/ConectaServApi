@@ -2,6 +2,7 @@
 using ConectaServApi.DTOs;
 using ConectaServApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConectaServApi.Controllers
 {
@@ -16,11 +17,12 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public IActionResult Cadastrar([FromBody] ContatoEmpresaCadastroDTO dto)
+        [HttpPost("cadastrar")]
+        public async Task<IActionResult> Cadastrar([FromBody] ContatoEmpresaCadastroDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var empresa = await _context.Empresas.FindAsync(dto.EmpresaId);
+            if (empresa == null)
+                return NotFound("Empresa não encontrada.");
 
             var contato = new ContatoEmpresa
             {
@@ -31,51 +33,19 @@ namespace ConectaServApi.Controllers
             };
 
             _context.ContatosEmpresa.Add(contato);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(ObterPorId), new { id = contato.Id }, contato);
+            return Ok(new { mensagem = "Contato cadastrado com sucesso.", contato.Id });
         }
 
-        [HttpGet("{id}")]
-        public IActionResult ObterPorId(int id)
+        [HttpGet("listar/{empresaId}")]
+        public async Task<IActionResult> ListarPorEmpresa(int empresaId)
         {
-            var contato = _context.ContatosEmpresa.Find(id);
-            if (contato == null) return NotFound();
-            return Ok(contato);
-        }
-
-        [HttpGet("empresa/{empresaId}")]
-        public IActionResult ListarPorEmpresa(int empresaId)
-        {
-            var contatos = _context.ContatosEmpresa
+            var contatos = await _context.ContatosEmpresa
                 .Where(c => c.EmpresaId == empresaId)
-                .ToList();
+                .ToListAsync();
+
             return Ok(contatos);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Atualizar(int id, [FromBody] ContatoEmpresaCadastroDTO dto)
-        {
-            var contato = _context.ContatosEmpresa.Find(id);
-            if (contato == null) return NotFound();
-
-            contato.TipoContato = dto.TipoContato;
-            contato.Valor = dto.Valor;
-            contato.Descricao = dto.Descricao;
-
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Deletar(int id)
-        {
-            var contato = _context.ContatosEmpresa.Find(id);
-            if (contato == null) return NotFound();
-
-            _context.ContatosEmpresa.Remove(contato);
-            _context.SaveChanges();
-            return NoContent();
         }
     }
 }
