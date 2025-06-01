@@ -27,7 +27,5 @@ namespace ConectaServApi.Data
         public DbSet<Agendamento> Agendamentos { get; set; }
         public DbSet<Denuncia> Denuncias { get; set; }
 
-
-
     }
 }

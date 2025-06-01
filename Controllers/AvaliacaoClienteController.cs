@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Registra uma nova avaliação de um prestador para um cliente.
+        /// Este endpoint exige campos obrigatórios PrestadorId e ClienteId, ambos previamente cadastrados.
         /// </summary>
         /// <param name="dto">Dados da avaliação</param>
         /// <returns>DTO com ID preenchido</returns>

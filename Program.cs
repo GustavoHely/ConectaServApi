@@ -1,4 +1,5 @@
 using ConectaServApi.Data;
+using ConectaServApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -74,6 +75,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddControllers();
+
+// ? Registro seguro do serviço do Google Maps
+builder.Services.AddSingleton<GoogleMapsService>();
+
 var app = builder.Build();
 
 // Executa migration automaticamente ao iniciar

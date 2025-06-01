@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Cadastra um novo agendamento entre cliente e prestador.
+        /// Este endpoint exige campos obrigatórios ClienteId e ServicoId, que devem estar previamente cadastrados.
         /// </summary>
         /// <param name="dto">Objeto contendo ClienteId, ServicoId, DataHora e Status</param>
         /// <returns>Retorna o ID do agendamento criado</returns>
@@ -63,6 +64,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Obtém os dados de um agendamento específico.
+        /// Retorna 404 caso o agendamento não seja encontrado.
         /// </summary>
         /// <param name="id">ID do agendamento</param>
         /// <returns>Dados do agendamento</returns>

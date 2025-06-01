@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Registra uma nova estatística para um prestador.
+        /// Este endpoint exige um campo obrigatório PrestadorId, que deve estar previamente cadastrado.
         /// </summary>
         /// <param name="dto">Dados iniciais da estatística</param>
         /// <returns>Estatística criada</returns>

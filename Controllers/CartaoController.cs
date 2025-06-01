@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Cadastra um novo cartão para um prestador.
+        /// Este endpoint exige um campo obrigatório PrestadorId, que deve estar previamente cadastrado.
         /// </summary>
         /// <param name="dto">Dados do cartão</param>
         /// <returns>ID do cartão criado</returns>

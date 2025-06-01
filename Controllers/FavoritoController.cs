@@ -19,6 +19,7 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Adiciona um prestador à lista de favoritos de um cliente.
+        /// Este endpoint exige campos obrigatórios ClienteId e PrestadorId, ambos já cadastrados.
         /// </summary>
         /// <param name="dto">Dados do favorito</param>
         /// <returns>ID do favorito criado</returns>
