@@ -1,8 +1,9 @@
-﻿using ConectaServApi.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ConectaServApi.Data;
 using ConectaServApi.DTOs;
 using ConectaServApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using ConectaServApi.Services;
 
 namespace ConectaServApi.Controllers
 {
@@ -11,38 +12,139 @@ namespace ConectaServApi.Controllers
     public class EnderecoController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly GoogleMapsService _mapsService;
 
-        public EnderecoController(AppDbContext context)
+        public EnderecoController(AppDbContext context, GoogleMapsService mapsService)
         {
             _context = context;
+            _mapsService = mapsService;
         }
 
-        [HttpPost("cadastrar")]
-        public async Task<IActionResult> Cadastrar([FromBody] EnderecoCadastroDTO dto)
+        /// <summary>
+        /// Cadastra um novo endereço. Preenche latitude/longitude e dados do local com base no CEP, se necessário.
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(Endereco), 201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CadastrarEndereco([FromBody] EnderecoCadastroDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var endereco = new Endereco
             {
+                Rua = dto.Rua,
                 Estado = dto.Estado,
                 Cidade = dto.Cidade,
                 Bairro = dto.Bairro,
-                Rua = dto.Rua,
                 Numero = dto.Numero,
                 CEP = dto.CEP,
+                Complemento = dto.Complemento,
                 Latitude = dto.Latitude,
                 Longitude = dto.Longitude
             };
 
+            // Corrigir coordenadas inválidas (0,0)
+            if (endereco.Latitude == 0 && endereco.Longitude == 0)
+            {
+                endereco.Latitude = null;
+                endereco.Longitude = null;
+            }
+
+            // Buscar informações complementares se necessário
+            if (!endereco.Latitude.HasValue || !endereco.Longitude.HasValue ||
+                string.IsNullOrWhiteSpace(endereco.Estado) ||
+                string.IsNullOrWhiteSpace(endereco.Cidade) ||
+                string.IsNullOrWhiteSpace(endereco.Bairro) ||
+                string.IsNullOrWhiteSpace(endereco.Rua))
+            {
+                var resultado = await _mapsService.ObterCoordenadasPorCepAsync(endereco.CEP);
+
+                if (resultado.Latitude == null || resultado.Longitude == null)
+                    return BadRequest("CEP inválido ou não encontrado.");
+
+                endereco.Latitude = resultado.Latitude;
+                endereco.Longitude = resultado.Longitude;
+                endereco.Estado = string.IsNullOrWhiteSpace(endereco.Estado) ? resultado.Estado ?? string.Empty : endereco.Estado;
+                endereco.Cidade = string.IsNullOrWhiteSpace(endereco.Cidade) ? resultado.Cidade ?? string.Empty : endereco.Cidade;
+                endereco.Bairro = string.IsNullOrWhiteSpace(endereco.Bairro) ? resultado.Bairro ?? string.Empty : endereco.Bairro;
+                endereco.Rua = string.IsNullOrWhiteSpace(endereco.Rua) ? resultado.Rua ?? string.Empty : endereco.Rua;
+            }
+
             _context.Enderecos.Add(endereco);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensagem = "Endereço cadastrado com sucesso.", endereco.Id });
+            return CreatedAtAction(nameof(BuscarPorId), new { id = endereco.Id }, endereco);
         }
 
-        [HttpGet("listar")]
-        public async Task<IActionResult> Listar()
+        /// <summary>
+        /// Retorna um endereço pelo ID.
+        /// </summary>
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Endereco), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> BuscarPorId(int id)
         {
-            var enderecos = await _context.Enderecos.ToListAsync();
-            return Ok(enderecos);
+            var endereco = await _context.Enderecos.FindAsync(id);
+            if (endereco == null)
+                return NotFound();
+
+            return Ok(endereco);
         }
+
+        /// <summary>
+        /// Atualiza um endereço existente. Também pode completar os dados com base no CEP se latitude/longitude ou informações regionais estiverem ausentes.
+        /// </summary>
+        [HttpPut("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> AtualizarEndereco(int id, [FromBody] EnderecoCadastroDTO dto)
+        {
+            var endereco = await _context.Enderecos.FindAsync(id);
+            if (endereco == null)
+                return NotFound();
+
+            endereco.Rua = dto.Rua;
+            endereco.Estado = dto.Estado;
+            endereco.Cidade = dto.Cidade;
+            endereco.Bairro = dto.Bairro;
+            endereco.Numero = dto.Numero;
+            endereco.CEP = dto.CEP;
+            endereco.Complemento = dto.Complemento;
+            endereco.Latitude = dto.Latitude;
+            endereco.Longitude = dto.Longitude;
+
+            // Corrigir coordenadas inválidas (0,0)
+            if (endereco.Latitude == 0 && endereco.Longitude == 0)
+            {
+                endereco.Latitude = null;
+                endereco.Longitude = null;
+            }
+
+            // Buscar informações complementares se necessário
+            if (!endereco.Latitude.HasValue || !endereco.Longitude.HasValue ||
+                string.IsNullOrWhiteSpace(endereco.Estado) ||
+                string.IsNullOrWhiteSpace(endereco.Cidade) ||
+                string.IsNullOrWhiteSpace(endereco.Bairro) ||
+                string.IsNullOrWhiteSpace(endereco.Rua))
+            {
+                var resultado = await _mapsService.ObterCoordenadasPorCepAsync(endereco.CEP);
+
+                if (resultado.Latitude == null || resultado.Longitude == null)
+                    return BadRequest("CEP inválido ou não encontrado.");
+
+                endereco.Latitude = resultado.Latitude;
+                endereco.Longitude = resultado.Longitude;
+                endereco.Estado = string.IsNullOrWhiteSpace(endereco.Estado) ? resultado.Estado ?? string.Empty : endereco.Estado;
+                endereco.Cidade = string.IsNullOrWhiteSpace(endereco.Cidade) ? resultado.Cidade ?? string.Empty : endereco.Cidade;
+                endereco.Bairro = string.IsNullOrWhiteSpace(endereco.Bairro) ? resultado.Bairro ?? string.Empty : endereco.Bairro;
+                endereco.Rua = string.IsNullOrWhiteSpace(endereco.Rua) ? resultado.Rua ?? string.Empty : endereco.Rua;
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
     }
 }
