@@ -44,5 +44,25 @@ namespace ConectaServApi.Controllers
 
             return Ok(prestadores);
         }
+
+        /// <summary>
+        /// Retorna o prestador vinculado a um usuário específico.
+        /// </summary>
+        /// <param name="usuarioId">ID do usuário</param>
+        /// <returns>Prestador associado ou 404</returns>
+        [HttpGet("buscar-por-usuario/{usuarioId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Prestador>> BuscarPorUsuario(int usuarioId)
+        {
+            var prestador = await _context.Prestadores
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
+
+            if (prestador == null)
+                return NotFound("Prestador não encontrado.");
+
+            return Ok(prestador);
+        }
+
     }
 }
