@@ -17,7 +17,15 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Cadastra um novo prestador vinculado a um usuário existente.
+        /// O campo UsuarioId é obrigatório e deve referenciar um usuário previamente cadastrado.
+        /// </summary>
+        /// <param name="dto">DTO contendo o ID do usuário</param>
+        /// <returns>ID do prestador criado e mensagem de sucesso</returns>
         [HttpPost("cadastrar")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cadastrar([FromBody] PrestadorCadastroDTO dto)
         {
             var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
@@ -35,7 +43,13 @@ namespace ConectaServApi.Controllers
             return Ok(new { mensagem = "Prestador cadastrado com sucesso.", prestador.Id });
         }
 
+        /// <summary>
+        /// Retorna a lista de todos os prestadores cadastrados no sistema.
+        /// Cada prestador é retornado com os dados do usuário associado.
+        /// </summary>
+        /// <returns>Lista de prestadores com informações de usuário</returns>
         [HttpGet("listar")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Listar()
         {
             var prestadores = await _context.Prestadores
@@ -47,9 +61,10 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Retorna o prestador vinculado a um usuário específico.
+        /// O campo usuarioId deve ser o ID de um usuário já existente no sistema.
         /// </summary>
         /// <param name="usuarioId">ID do usuário</param>
-        /// <returns>Prestador associado ou 404</returns>
+        /// <returns>Prestador associado ao usuário ou erro 404 se não encontrado</returns>
         [HttpGet("buscar-por-usuario/{usuarioId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

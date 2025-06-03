@@ -17,7 +17,15 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Cadastra um novo cliente vinculado a um usuário existente.
+        /// O campo UsuarioId é obrigatório e deve referenciar um usuário previamente cadastrado.
+        /// </summary>
+        /// <param name="dto">DTO com os dados do cliente e ID do usuário</param>
+        /// <returns>ID do cliente criado e mensagem de sucesso</returns>
         [HttpPost("cadastrar")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cadastrar([FromBody] ClienteCadastroDTO dto)
         {
             var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
@@ -26,8 +34,7 @@ namespace ConectaServApi.Controllers
 
             var cliente = new Cliente
             {
-                UsuarioId = dto.UsuarioId,
-                EnderecoId = dto.EnderecoId
+                UsuarioId = dto.UsuarioId
             };
 
             _context.Clientes.Add(cliente);
@@ -36,15 +43,21 @@ namespace ConectaServApi.Controllers
             return Ok(new { mensagem = "Cliente cadastrado com sucesso.", cliente.Id });
         }
 
+        /// <summary>
+        /// Retorna a lista de todos os clientes cadastrados no sistema.
+        /// Cada cliente é retornado com os dados do usuário associado.
+        /// </summary>
+        /// <returns>Lista de clientes com informações de usuário</returns>
         [HttpGet("listar")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Listar()
         {
             var clientes = await _context.Clientes
                 .Include(c => c.Usuario)
-                .Include(c => c.Endereco)
                 .ToListAsync();
 
             return Ok(clientes);
         }
+
     }
 }
