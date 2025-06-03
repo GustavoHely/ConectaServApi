@@ -15,8 +15,10 @@ namespace ConectaServApi.DTOs
         [Required]
         public string RazaoSocial { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "O CNPJ é obrigatório.")]
+        [RegularExpression(@"^\d{14}$", ErrorMessage = "O CNPJ deve conter exatamente 14 dígitos numéricos.")]
         public string Cnpj { get; set; } = string.Empty;
+
 
         public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
 

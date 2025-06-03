@@ -20,7 +20,9 @@ namespace ConectaServApi.Models
         public string SenhaHash { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(11)]
         public string CPF { get; set; } = string.Empty;
+
 
         [Required]
         public string Telefone { get; set; } = string.Empty;

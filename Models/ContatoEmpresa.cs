@@ -10,18 +10,17 @@ namespace ConectaServApi.Models
         public int Id { get; set; }
 
         [Required]
+        [ForeignKey("Empresa")]
         public int EmpresaId { get; set; }
 
-        [ForeignKey("EmpresaId")]
         public Empresa Empresa { get; set; } = new Empresa();
 
         [Required]
+        [MaxLength(20)]
         public string TipoContato { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(100)]
         public string Valor { get; set; } = string.Empty;
-
-        [Required]
-        public string Descricao { get; set; } = string.Empty;
     }
 }

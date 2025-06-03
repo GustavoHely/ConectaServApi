@@ -14,7 +14,8 @@ namespace ConectaServApi.DTOs
         [Required]
         public string Senha { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "O CPF é obrigatório.")]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "O CPF deve conter exatamente 11 dígitos numéricos.")]
         public string CPF { get; set; } = string.Empty;
 
         [Required]
