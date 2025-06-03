@@ -157,5 +157,44 @@ namespace ConectaServApi.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        /// <summary>
+        /// Lista todos os serviços cadastrados no sistema.
+        /// </summary>
+        /// <returns>Lista completa de serviços com informações das empresas</returns>
+        [HttpGet("listar-todos")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ServicoDetalhadoDTO>>> ListarTodos()
+        {
+            var servicos = await _context.Servicos
+                .Include(s => s.Empresa)
+                    .ThenInclude(e => e.Endereco)
+                .Include(s => s.Empresa)
+                    .ThenInclude(e => e.Contatos)
+                .ToListAsync(); // Aqui termina o LINQ-to-SQL, agora estamos em memória
+
+            var resultado = servicos.Select(servico => new ServicoDetalhadoDTO
+            {
+                Id = servico.Id,
+                Nome = servico.Nome,
+                Descricao = servico.Descricao,
+                Preco = servico.Preco,
+                PrecoSobConsulta = servico.PrecoSobConsulta,
+                Ativo = servico.Ativo,
+                EmpresaId = servico.Empresa?.Id ?? 0,
+                EmpresaNome = servico.Empresa?.Nome ?? "Empresa não informada",
+                RazaoSocial = servico.Empresa?.RazaoSocial ?? "Não informada",
+                Cnpj = servico.Empresa?.Cnpj ?? "Não informado",
+                FotoEstabelecimentoUrl = servico.Empresa?.FotoEstabelecimentoUrl ?? string.Empty,
+                EnderecoCompleto = servico.Empresa?.Endereco != null
+                    ? $"{servico.Empresa.Endereco.Rua}, {servico.Empresa.Endereco.Numero} - {servico.Empresa.Endereco.Bairro}, {servico.Empresa.Endereco.Cidade} - {servico.Empresa.Endereco.Estado}, CEP: {servico.Empresa.Endereco.CEP}"
+                    : "Endereço não cadastrado",
+                Contatos = servico.Empresa?.Contatos != null
+                    ? servico.Empresa.Contatos.Select(c => $"{c.TipoContato}: {c.Valor}").ToList()
+                    : new List<string>()
+            });
+
+            return Ok(resultado);
+        }
     }
 }
