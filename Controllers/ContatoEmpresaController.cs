@@ -17,19 +17,43 @@ namespace ConectaServApi.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Cadastra um novo contato para a empresa. WhatsApp ou Email são obrigatórios em pelo menos um contato.
+        /// </summary>
+        /// <param name="dto">Dados do contato</param>
+        /// <returns>Mensagem de sucesso ou erro</returns>
         [HttpPost("cadastrar")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cadastrar([FromBody] ContatoEmpresaCadastroDTO dto)
         {
             var empresa = await _context.Empresas.FindAsync(dto.EmpresaId);
             if (empresa == null)
                 return NotFound("Empresa não encontrada.");
 
+            var tipo = dto.TipoContato.Trim().ToLower();
+            var tiposPermitidos = new[] { "telefone", "whatsapp", "email" };
+
+            if (!tiposPermitidos.Contains(tipo))
+                return BadRequest("Tipo de contato inválido. Use: telefone, whatsapp ou email.");
+
+            // Se for o primeiro contato, obrigar que seja whatsapp ou email
+            var contatosExistentes = await _context.ContatosEmpresa
+                .Where(c => c.EmpresaId == dto.EmpresaId)
+                .ToListAsync();
+
+            var temContatoUtil = contatosExistentes.Any(c =>
+                c.TipoContato.ToLower() == "whatsapp" || c.TipoContato.ToLower() == "email");
+
+            if (!temContatoUtil && tipo == "telefone")
+                return BadRequest("A empresa deve possuir ao menos um contato de WhatsApp ou Email.");
+
             var contato = new ContatoEmpresa
             {
                 EmpresaId = dto.EmpresaId,
                 TipoContato = dto.TipoContato,
-                Valor = dto.Valor,
-                Descricao = dto.Descricao
+                Valor = dto.Valor
             };
 
             _context.ContatosEmpresa.Add(contato);
@@ -38,7 +62,13 @@ namespace ConectaServApi.Controllers
             return Ok(new { mensagem = "Contato cadastrado com sucesso.", contato.Id });
         }
 
+        /// <summary>
+        /// Lista todos os contatos de uma empresa.
+        /// </summary>
+        /// <param name="empresaId">ID da empresa</param>
+        /// <returns>Lista de contatos</returns>
         [HttpGet("listar/{empresaId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ListarPorEmpresa(int empresaId)
         {
             var contatos = await _context.ContatosEmpresa

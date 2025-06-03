@@ -22,7 +22,9 @@ namespace ConectaServApi.Models
         public string RazaoSocial { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(14)]
         public string Cnpj { get; set; } = string.Empty;
+
 
         public string FotoEstabelecimentoUrl { get; set; } = string.Empty;
 
