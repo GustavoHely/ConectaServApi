@@ -28,8 +28,9 @@ namespace ConectaServApi.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CadastrarEndereco([FromBody] EnderecoCadastroDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            // Validar apenas o CEP inicialmente
+            if (string.IsNullOrWhiteSpace(dto.CEP))
+                return BadRequest(new { errors = new { CEP = new[] { "O CEP é obrigatório." } } });
 
             var endereco = new Endereco
             {
@@ -44,19 +45,12 @@ namespace ConectaServApi.Controllers
                 Longitude = dto.Longitude
             };
 
-            // Corrigir coordenadas inválidas (0,0)
-            if (endereco.Latitude == 0 && endereco.Longitude == 0)
-            {
-                endereco.Latitude = null;
-                endereco.Longitude = null;
-            }
-
-            // Buscar informações complementares se necessário
-            if (!endereco.Latitude.HasValue || !endereco.Longitude.HasValue ||
+            // Buscar informações do Google Maps primeiro
+            if (string.IsNullOrWhiteSpace(endereco.Rua) ||
+                endereco.Latitude == null || endereco.Longitude == null ||
                 string.IsNullOrWhiteSpace(endereco.Estado) ||
                 string.IsNullOrWhiteSpace(endereco.Cidade) ||
-                string.IsNullOrWhiteSpace(endereco.Bairro) ||
-                string.IsNullOrWhiteSpace(endereco.Rua))
+                string.IsNullOrWhiteSpace(endereco.Bairro))
             {
                 var resultado = await _mapsService.ObterCoordenadasPorCepAsync(endereco.CEP);
 
@@ -70,6 +64,10 @@ namespace ConectaServApi.Controllers
                 endereco.Bairro = string.IsNullOrWhiteSpace(endereco.Bairro) ? resultado.Bairro ?? string.Empty : endereco.Bairro;
                 endereco.Rua = string.IsNullOrWhiteSpace(endereco.Rua) ? resultado.Rua ?? string.Empty : endereco.Rua;
             }
+
+            // Validar o modelo completo após preenchimento
+            if (string.IsNullOrWhiteSpace(endereco.Rua))
+                return BadRequest(new { errors = new { Rua = new[] { "A rua é obrigatória e não pôde ser obtida automaticamente." } } });
 
             _context.Enderecos.Add(endereco);
             await _context.SaveChangesAsync();
@@ -85,7 +83,11 @@ namespace ConectaServApi.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> BuscarPorId(int id)
         {
-            var endereco = await _context.Enderecos.FindAsync(id);
+            // Use uma consulta SQL direta para evitar problemas de conversão de tipo
+            var endereco = await _context.Enderecos
+                .FromSqlRaw("SELECT * FROM Enderecos WHERE Id = {0}", id)
+                .FirstOrDefaultAsync();
+
             if (endereco == null)
                 return NotFound();
 
