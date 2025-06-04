@@ -30,7 +30,6 @@ namespace ConectaServApi.Models
         [Required]
         public string Celular { get; set; } = string.Empty;
 
-        [Required]
         public string FotoPerfilUrl { get; set; } = string.Empty;
 
         public int EnderecoId { get; set; }

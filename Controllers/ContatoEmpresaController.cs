@@ -18,10 +18,12 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Cadastra um novo contato para a empresa. WhatsApp ou Email são obrigatórios em pelo menos um contato.
+        /// Cadastra um novo contato para uma empresa.
+        /// O campo EmpresaId é obrigatório. Tipo de contato deve ser 'telefone', 'whatsapp' ou 'email'.
+        /// Caso não exista contato útil ainda, é obrigatório cadastrar pelo menos um WhatsApp ou Email.
         /// </summary>
-        /// <param name="dto">Dados do contato</param>
-        /// <returns>Mensagem de sucesso ou erro</returns>
+        /// <param name="dto">DTO com os dados do contato</param>
+        /// <returns>Mensagem de sucesso e ID do novo contato</returns>
         [HttpPost("cadastrar")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,7 +40,6 @@ namespace ConectaServApi.Controllers
             if (!tiposPermitidos.Contains(tipo))
                 return BadRequest("Tipo de contato inválido. Use: telefone, whatsapp ou email.");
 
-            // Se for o primeiro contato, obrigar que seja whatsapp ou email
             var contatosExistentes = await _context.ContatosEmpresa
                 .Where(c => c.EmpresaId == dto.EmpresaId)
                 .ToListAsync();
@@ -63,10 +64,11 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Lista todos os contatos de uma empresa.
+        /// Lista todos os contatos cadastrados de uma empresa específica.
+        /// O ID deve referenciar uma empresa existente no sistema.
         /// </summary>
         /// <param name="empresaId">ID da empresa</param>
-        /// <returns>Lista de contatos</returns>
+        /// <returns>Lista de contatos vinculados à empresa</returns>
         [HttpGet("listar/{empresaId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ListarPorEmpresa(int empresaId)
@@ -77,5 +79,6 @@ namespace ConectaServApi.Controllers
 
             return Ok(contatos);
         }
+
     }
 }

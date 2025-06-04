@@ -19,10 +19,10 @@ namespace ConectaServApi.Controllers
 
         /// <summary>
         /// Cadastra um novo serviço para uma empresa.
-        /// Este endpoint exige um campo obrigatório EmpresaId, que deve estar previamente cadastrado.
+        /// O campo EmpresaId é obrigatório e deve referenciar uma empresa existente no sistema.
         /// </summary>
-        /// <param name="dto">DTO contendo os dados do serviço</param>
-        /// <returns>Retorna o ID do novo serviço criado</returns>
+        /// <param name="dto">DTO com os dados do serviço</param>
+        /// <returns>ID do serviço criado e rota para consulta</returns>
         [HttpPost("cadastrar")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -45,10 +45,11 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Lista todos os serviços vinculados a uma empresa.
+        /// Lista todos os serviços vinculados a uma empresa específica.
+        /// O campo empresaId deve referenciar uma empresa existente no sistema.
         /// </summary>
         /// <param name="empresaId">ID da empresa</param>
-        /// <returns>Lista de serviços</returns>
+        /// <returns>Lista de serviços associados à empresa</returns>
         [HttpGet("listar/{empresaId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ServicoDetalhadoDTO>>> ListarPorEmpresa(int empresaId)
@@ -70,10 +71,11 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Obtém os detalhes completos de um serviço.
+        /// Retorna os detalhes completos de um serviço específico, incluindo dados da empresa, endereço e contatos.
+        /// O ID deve referenciar um serviço existente no sistema.
         /// </summary>
         /// <param name="id">ID do serviço</param>
-        /// <returns>DTO detalhado do serviço</returns>
+        /// <returns>DTO com informações completas do serviço e sua empresa</returns>
         [HttpGet("detalhes/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -114,11 +116,12 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Atualiza um serviço existente.
+        /// Atualiza os dados de um serviço existente.
+        /// O ID deve corresponder a um serviço cadastrado previamente.
         /// </summary>
-        /// <param name="id">ID do serviço</param>
-        /// <param name="dto">Novos dados</param>
-        /// <returns>NoContent se atualizado</returns>
+        /// <param name="id">ID do serviço a ser atualizado</param>
+        /// <param name="dto">DTO com os novos dados do serviço</param>
+        /// <returns>NoContent se a atualização for bem-sucedida, ou NotFound se o serviço não existir</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -140,10 +143,11 @@ namespace ConectaServApi.Controllers
         }
 
         /// <summary>
-        /// Exclui um serviço do sistema.
+        /// Exclui permanentemente um serviço do sistema.
+        /// O ID informado deve corresponder a um serviço previamente cadastrado.
         /// </summary>
-        /// <param name="id">ID do serviço</param>
-        /// <returns>NoContent se excluído</returns>
+        /// <param name="id">ID do serviço a ser excluído</param>
+        /// <returns>NoContent se a exclusão for bem-sucedida, ou NotFound se o serviço não existir</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
